@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    /* Target & Environment */
+    "target": "esnext",               // Specifies the modern JavaScript version to output (lets you use modern JS features)
+    "module": "esnext",               // Specifies the module code format (uses modern import/export syntax)
+    "moduleResolution": "bundler",    // Tells TypeScript how to locate imported files without requiring full file extensions (.js)
+    "lib": ["esnext", "dom"],         // Includes built-in type definitions for modern JS features and DOM types (like HTMLElement)
+    "types": ["node"],                // Enables auto-completion and types for Node.js globals (like process.env or __dirname)
+
+    /* Strictness & Safety */
+    "strict": true,                   // Enables all strict type-checking flags to catch errors early in your test code
+    "skipLibCheck": true,             // Skips type checking of .d.ts files in node_modules (speeds up build and prevents third-party library type errors)
+    "isolatedModules": true,          // Ensures each file can be transpiled independently by modern build tools
+    "moduleDetection": "force",       // Treats all files as ES modules even if they don't have explicit import/export statements
+    "noUncheckedIndexedAccess": true  // Adds 'undefined' to array lookups or index signatures for safer element access
+
+    /* Path Aliases (Optional) */
+    // "baseUrl": ".",                // Base directory to resolve non-relative module names
+    // "paths": { "@pages/*": ["pages/*"] } // Allows clean imports like "@pages/LoginPage" instead of "../../pages/LoginPage"
+  },
+
+  /* File Scope */
+  "include": [
+    "tests/**/*",                    // Tells TypeScript to check all files inside your 'tests' folder
+    "lectures/**/*",
+    "playwright.config.ts"           // Includes your Playwright configuration file for type checking
+  ]
+}

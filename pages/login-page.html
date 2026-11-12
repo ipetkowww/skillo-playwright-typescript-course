@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign in | Form &amp; Field</title>
+  <style>
+    :root { --ink: #202b25; --muted: #657069; --green: #245c43; --line: #dce2dc; --red: #ab342e; }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: #f7f9f7; font: 15px/1.6 "Trebuchet MS", sans-serif; letter-spacing: 0; }
+    button, input { font: inherit; }
+    a { color: var(--green); text-underline-offset: 4px; }
+    :focus-visible { outline: 3px solid #d59b3c; outline-offset: 4px; }
+    .site-header { height: 88px; padding: 0 6%; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); background: white; }
+    .brand { color: var(--ink); font: bold 26px Georgia, serif; text-decoration: none; }
+    .header-note { color: var(--muted); font-size: 13px; }
+    .login-layout { max-width: 1080px; margin: 70px auto; padding: 0 28px; display: grid; grid-template-columns: 1fr 1fr; gap: 100px; align-items: center; }
+    .editorial-image { width: 100%; height: 350px; object-fit: cover; display: block; }
+    .eyebrow { color: var(--green); text-transform: uppercase; font-size: 11px; font-weight: bold; letter-spacing: 2px; margin: 26px 0 10px; }
+    h1 { font: 40px/1.15 Georgia, serif; margin: 0 0 12px; }
+    h2 { font: 30px/1.2 Georgia, serif; margin: 12px 0; }
+    .muted, .intro { color: var(--muted); }
+    .intro { max-width: 340px; }
+    .login-form { margin-top: 30px; }
+    .form-field { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: bold; margin-bottom: 7px; }
+    .text-input { width: 100%; border: 1px solid #aeb9af; border-radius: 4px; padding: 12px 14px; background: white; color: var(--ink); }
+    .text-input[aria-invalid="true"] { border-color: var(--red); }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 72px; }
+    .password-toggle { position: absolute; right: 12px; top: 12px; border: 0; background: transparent; padding: 2px; color: var(--green); cursor: pointer; font-size: 13px; }
+    .form-options { display: flex; align-items: center; gap: 9px; font-size: 13px; margin-bottom: 24px; }
+    input[type="checkbox"] { accent-color: var(--green); width: 17px; height: 17px; }
+    .primary-button { background: var(--green); color: white; border: 0; border-radius: 4px; width: 100%; padding: 13px 20px; cursor: pointer; font-weight: bold; }
+    .primary-button:hover { background: #18432f; }
+    .primary-button:disabled { opacity: .6; cursor: wait; }
+    .error-message { color: var(--red); font-size: 13px; margin: 6px 0 0; }
+    .login-error { padding: 12px; background: #fff0ef; border-left: 3px solid var(--red); margin-bottom: 20px; }
+    .demo-account { margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--line); font-size: 13px; color: var(--muted); }
+    .demo-account strong { color: var(--ink); }
+    .demo-account p { margin: 4px 0; }
+    .site-footer { max-width: 1024px; margin: 50px auto 24px; padding: 20px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; gap: 16px; }
+    [hidden] { display: none !important; }
+    @media (max-width: 760px) { .login-layout { grid-template-columns: 1fr; gap: 32px; margin: 36px auto; max-width: 480px; } .editorial { display: none; } .header-note { font-size: 11px; } .site-header { padding: 0 24px; height: 72px; } h1 { font-size: 34px; } .site-footer { flex-wrap: wrap; } }
+  </style>
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" id="brand-link" href="login-page.html">Form &amp; Field<span style="color:#ab342e">.</span></a>
+  <span class="header-note">Everyday objects. Considered design.</span>
+</header>
+<main class="login-layout">
+  <section class="editorial" aria-label="Our collection">
+    <img class="editorial-image" src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&amp;fit=crop&amp;w=1000&amp;q=85" alt="A black reading lamp against a soft green wall">
+    <p class="eyebrow">A little more intentional</p>
+    <h2>Good things for<br>your everyday.</h2>
+    <p class="intro">Useful objects, honest materials, and a quieter kind of workspace. Find your next everyday favorite.</p>
+  </section>
+  <section class="login-panel" aria-labelledby="login-heading">
+    <p class="eyebrow">Your account</p>
+    <h1 id="login-heading">Welcome back.</h1>
+    <p class="muted">Sign in to make yourself at home.</p>
+    <form id="login-form" class="login-form" novalidate>
+      <div id="login-error" class="error-message login-error" role="alert" hidden></div>
+      <div class="form-field">
+        <label class="form-label" for="email">Email address</label>
+        <input class="text-input" id="email" name="email" type="email" autocomplete="username" placeholder="you@example.com" aria-describedby="email-error" required>
+        <p id="email-error" class="error-message" hidden></p>
+      </div>
+      <div class="form-field">
+        <label class="form-label" for="password">Password</label>
+        <div class="password-wrap">
+          <input class="text-input" id="password" name="password" type="password" autocomplete="current-password" placeholder="Enter your password" aria-describedby="password-error" required>
+          <button class="password-toggle" id="toggle-password" type="button" aria-label="Show password" aria-pressed="false">Show</button>
+        </div>
+        <p id="password-error" class="error-message" hidden></p>
+      </div>
+      <label class="form-options" for="remember-email"><input id="remember-email" name="remember-email" type="checkbox"> Remember my email</label>
+      <button id="login-button" class="primary-button" type="submit">Sign in</button>
+    </form>
+    <aside class="demo-account" aria-label="Demo account">
+      <strong>Lecture demo account</strong>
+      <p>Email: <span id="demo-email">alex@example.com</span></p>
+      <p>Password: <span id="demo-password">Playwright123!</span></p>
+      <p>Demo only. Do not enter real credentials.</p>
+    </aside>
+  </section>
+</main>
+<footer class="site-footer"><span>Form &amp; Field / The everyday collection</span><span>Lecture demo. No real purchases.</span></footer>
+<script>
+  const form = document.querySelector('#login-form');
+  const email = document.querySelector('#email');
+  const password = document.querySelector('#password');
+  const rememberEmail = document.querySelector('#remember-email');
+  const loginError = document.querySelector('#login-error');
+  const loginButton = document.querySelector('#login-button');
+  const savedEmail = localStorage.getItem('ff-remembered-email');
+  if (savedEmail) {
+    email.value = savedEmail;
+    rememberEmail.checked = true;
+  }
+  document.querySelector('#toggle-password').addEventListener('click', (event) => {
+    const visible = password.type === 'password';
+    password.type = visible ? 'text' : 'password';
+    event.currentTarget.textContent = visible ? 'Hide' : 'Show';
+    event.currentTarget.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+    event.currentTarget.setAttribute('aria-pressed', String(visible));
+  });
+  function showFieldError(input, message) {
+    const error = document.querySelector('#' + input.id + '-error');
+    input.setAttribute('aria-invalid', String(Boolean(message)));
+    error.textContent = message;
+    error.hidden = !message;
+  }
+  for (const input of [email, password]) {
+    input.addEventListener('input', () => {
+      showFieldError(input, '');
+      loginError.hidden = true;
+    });
+  }
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    if (loginButton.disabled) return;
+    loginError.hidden = true;
+    const emailMessage = !email.value.trim() ? 'Enter your email address.' : !email.validity.valid ? 'Enter a valid email address.' : '';
+    const passwordMessage = !password.value ? 'Enter your password.' : '';
+    showFieldError(email, emailMessage);
+    showFieldError(password, passwordMessage);
+    if (emailMessage || passwordMessage) {
+      (emailMessage ? email : password).focus();
+      return;
+    }
+    loginButton.disabled = true;
+    loginButton.textContent = 'Signing in...';
+    window.setTimeout(() => {
+      if (email.value.trim().toLowerCase() === 'alex@example.com' && password.value === 'Playwright123!') {
+        sessionStorage.setItem('ff-user', JSON.stringify({ name: 'Alex Morgan', email: 'alex@example.com' }));
+        if (rememberEmail.checked) localStorage.setItem('ff-remembered-email', email.value.trim());
+        else localStorage.removeItem('ff-remembered-email');
+        window.location.href = 'home-page.html';
+      } else {
+        loginError.textContent = 'Email or password is incorrect. Please try again.';
+        loginError.hidden = false;
+        loginButton.disabled = false;
+        loginButton.textContent = 'Sign in';
+      }
+    }, 400);
+  });
+</script>
+</body>
+</html>
