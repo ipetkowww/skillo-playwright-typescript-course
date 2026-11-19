@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Orders | Northwind Supply</title>
+	<link rel="stylesheet" href="../../../02-playwright/pages/styles.css">
+	<style>
+		.site-header nav { display: flex; align-items: center; gap: 20px; }
+		.site-header nav button { padding: 6px 14px; }
+		.filters { display: grid; grid-template-columns: 2fr 1fr; gap: 16px; align-items: end; }
+		.filters label { margin-top: 0; }
+		th button { padding: 0; background: none; color: inherit; font-weight: bold; }
+		th button:hover { background: none; text-decoration: underline; }
+		.badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 13px; background: #e8f0e9; }
+		.badge[data-status="Pending"] { background: #f6ecd9; }
+		.badge[data-status="Cancelled"] { background: #f4dedc; color: var(--red); }
+		.total { text-align: right; font-variant-numeric: tabular-nums; }
+		@media (max-width: 650px) { .filters { grid-template-columns: 1fr; } }
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<a class="brand" href="index.html">Northwind Supply.</a>
+		<nav aria-label="Main">
+			<a href="index.html" aria-current="page">Orders</a>
+			<a href="account.html">Account</a>
+			<button id="logout-button" type="button">Sign out</button>
+		</nav>
+	</header>
+	<main>
+		<p class="eyebrow">Dashboard</p>
+		<h1>Orders</h1>
+		<p class="muted">Recent orders placed by your company.</p>
+
+		<form id="filters" class="panel filters" role="search" aria-label="Filter orders">
+			<div>
+				<label for="search">Search customer</label>
+				<input id="search" name="search" type="search" placeholder="Customer name">
+			</div>
+			<div>
+				<label for="status-filter">Status</label>
+				<select id="status-filter" name="status">
+					<option value="">All statuses</option>
+					<option value="Pending">Pending</option>
+					<option value="Paid">Paid</option>
+					<option value="Shipped">Shipped</option>
+					<option value="Cancelled">Cancelled</option>
+				</select>
+			</div>
+		</form>
+
+		<div class="table-wrap">
+			<table id="orders-table" data-testid="orders-table">
+				<caption>Recent orders</caption>
+				<thead>
+					<tr>
+						<th scope="col">Order</th>
+						<th scope="col">Customer</th>
+						<th scope="col">Date</th>
+						<th scope="col">Status</th>
+						<th scope="col" class="total" aria-sort="none"><button id="sort-total" type="button">Total</button></th>
+					</tr>
+				</thead>
+				<tbody></tbody>
+			</table>
+		</div>
+		<p id="results-count" class="muted" role="status"></p>
+	</main>
+	<footer>Northwind Supply / Partner portal</footer>
+	<script>
+		if (sessionStorage.getItem('nw-authenticated') !== 'true') {
+			window.location.replace('login.html');
+		}
+
+		const orders = [
+			{ id: 'NW-1042', customer: 'Bluebird Café', date: '2026-11-02', status: 'Paid', total: 1240.50 },
+			{ id: 'NW-1043', customer: 'Harbor Books', date: '2026-11-03', status: 'Shipped', total: 389.00 },
+			{ id: 'NW-1044', customer: 'Greenleaf Market', date: '2026-11-05', status: 'Pending', total: 2175.25 },
+			{ id: 'NW-1045', customer: 'Bluebird Café', date: '2026-11-07', status: 'Cancelled', total: 96.40 },
+			{ id: 'NW-1046', customer: 'Summit Outdoor', date: '2026-11-09', status: 'Paid', total: 845.00 },
+			{ id: 'NW-1047', customer: 'Harbor Books', date: '2026-11-11', status: 'Pending', total: 512.75 },
+			{ id: 'NW-1048', customer: 'Copper Kettle', date: '2026-11-12', status: 'Shipped', total: 3020.00 },
+			{ id: 'NW-1049', customer: 'Greenleaf Market', date: '2026-11-14', status: 'Paid', total: 158.90 },
+		];
+
+		const search = document.querySelector('#search');
+		const statusFilter = document.querySelector('#status-filter');
+		const sortButton = document.querySelector('#sort-total');
+		const totalHeader = sortButton.closest('th');
+		const tbody = document.querySelector('#orders-table tbody');
+		const count = document.querySelector('#results-count');
+		const currency = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' });
+		let sortDirection = 'none';
+
+		function render() {
+			const term = search.value.trim().toLowerCase();
+			let rows = orders.filter((order) =>
+				order.customer.toLowerCase().includes(term)
+				&& (!statusFilter.value || order.status === statusFilter.value));
+
+			if (sortDirection !== 'none') {
+				rows = [...rows].sort((a, b) => sortDirection === 'descending' ? b.total - a.total : a.total - b.total);
+			}
+
+			tbody.replaceChildren();
+			if (rows.length === 0) {
+				const row = tbody.insertRow();
+				const cell = row.insertCell();
+				cell.colSpan = 5;
+				cell.textContent = 'No orders match your filters.';
+			}
+			for (const order of rows) {
+				const row = tbody.insertRow();
+				row.dataset.orderId = order.id;
+				row.insertCell().textContent = order.id;
+				row.insertCell().textContent = order.customer;
+				row.insertCell().textContent = order.date;
+				const status = row.insertCell();
+				status.innerHTML = '<span class="badge"></span>';
+				status.firstChild.textContent = order.status;
+				status.firstChild.dataset.status = order.status;
+				const total = row.insertCell();
+				total.className = 'total';
+				total.textContent = currency.format(order.total);
+			}
+			count.textContent = `Showing ${rows.length} of ${orders.length} orders`;
+			totalHeader.setAttribute('aria-sort', sortDirection);
+		}
+
+		search.addEventListener('input', render);
+		statusFilter.addEventListener('change', render);
+		document.querySelector('#filters').addEventListener('submit', (event) => event.preventDefault());
+		sortButton.addEventListener('click', () => {
+			sortDirection = sortDirection === 'descending' ? 'ascending' : 'descending';
+			render();
+		});
+		document.querySelector('#logout-button').addEventListener('click', () => {
+			sessionStorage.removeItem('nw-authenticated');
+			window.location.href = 'login.html';
+		});
+
+		render();
+	</script>
+</body>
+</html>

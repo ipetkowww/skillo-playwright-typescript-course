@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Sign in | Northwind Supply</title>
+	<link rel="stylesheet" href="../../../02-playwright/pages/styles.css">
+	<style>
+		main { max-width: 480px; }
+	</style>
+</head>
+<body>
+	<header class="site-header"><a class="brand" href="index.html">Northwind Supply.</a></header>
+	<main>
+		<p class="eyebrow">Partner portal</p>
+		<h1>Sign in to your account.</h1>
+		<p class="muted">Track orders and manage your company details.</p>
+		<form id="login-form" class="panel" novalidate>
+			<label for="email">Work email</label>
+			<input id="email" name="email" type="email" autocomplete="username" placeholder="name@company.com" required>
+			<label for="password">Password</label>
+			<input id="password" name="password" type="password" autocomplete="current-password" required>
+			<div class="actions"><button id="login-button" type="submit">Sign in</button></div>
+		</form>
+		<p id="login-error" class="status error" role="alert" hidden></p>
+		<aside class="panel" aria-labelledby="demo-account-heading">
+			<h2 id="demo-account-heading">Demo account</h2>
+			<p><strong>Email:</strong> <code>alex.morgan@example.test</code></p>
+			<p><strong>Password:</strong> <code>Northwind#2026</code></p>
+		</aside>
+	</main>
+	<footer>Northwind Supply / Partner portal</footer>
+	<script>
+		const form = document.querySelector('#login-form');
+		const email = document.querySelector('#email');
+		const password = document.querySelector('#password');
+		const error = document.querySelector('#login-error');
+
+		form.addEventListener('input', () => {
+			error.hidden = true;
+		});
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			error.hidden = true;
+
+			if (!email.value.trim() || !password.value) {
+				error.textContent = 'Enter your work email and password.';
+				error.hidden = false;
+				(!email.value.trim() ? email : password).focus();
+				return;
+			}
+
+			if (email.value.trim() === 'alex.morgan@example.test' && password.value === 'Northwind#2026') {
+				sessionStorage.setItem('nw-authenticated', 'true');
+				window.location.href = 'index.html';
+				return;
+			}
+
+			error.textContent = 'Email or password is incorrect.';
+			error.hidden = false;
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Account | Northwind Supply</title>
+	<link rel="stylesheet" href="../../../02-playwright/pages/styles.css">
+	<style>
+		main { max-width: 720px; }
+		.site-header nav { display: flex; align-items: center; gap: 20px; }
+		.site-header nav button { padding: 6px 14px; }
+		dl { display: grid; grid-template-columns: 160px 1fr; gap: 8px 16px; margin: 0; }
+		dt { color: var(--muted); }
+		dd { margin: 0; }
+		.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+		@media (max-width: 650px) { .form-grid, dl { grid-template-columns: 1fr; } }
+	</style>
+</head>
+<body>
+	<header class="site-header">
+		<a class="brand" href="index.html">Northwind Supply.</a>
+		<nav aria-label="Main">
+			<a href="index.html">Orders</a>
+			<a href="account.html" aria-current="page">Account</a>
+			<button id="logout-button" type="button">Sign out</button>
+		</nav>
+	</header>
+	<main>
+		<p class="eyebrow">Settings</p>
+		<h1>Personal information</h1>
+
+		<section class="panel" aria-labelledby="summary-heading">
+			<h2 id="summary-heading">Account summary</h2>
+			<dl>
+				<dt>Full name</dt><dd id="summary-name"></dd>
+				<dt>Work email</dt><dd id="summary-email">alex.morgan@example.test</dd>
+				<dt>Phone</dt><dd id="summary-phone"></dd>
+				<dt>Company</dt><dd id="summary-company">Northwind Supply Partners Ltd.</dd>
+				<dt>Member since</dt><dd>March 2023</dd>
+			</dl>
+		</section>
+
+		<form id="profile-form" class="panel" aria-labelledby="edit-heading" novalidate>
+			<h2 id="edit-heading">Edit details</h2>
+			<div class="form-grid">
+				<div>
+					<label for="first-name">First name</label>
+					<input id="first-name" name="firstName" type="text" autocomplete="given-name" required>
+				</div>
+				<div>
+					<label for="last-name">Last name</label>
+					<input id="last-name" name="lastName" type="text" autocomplete="family-name" required>
+				</div>
+			</div>
+			<label for="phone">Phone number</label>
+			<input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+1 555 010 0000">
+			<label for="language">Preferred language</label>
+			<select id="language" name="language">
+				<option value="en">English</option>
+				<option value="bg">Bulgarian</option>
+				<option value="de">German</option>
+			</select>
+			<p id="profile-error" class="error" role="alert" hidden></p>
+			<div class="actions">
+				<button id="save-button" type="submit">Save changes</button>
+				<button id="reset-button" type="button">Cancel</button>
+			</div>
+		</form>
+		<p id="profile-status" class="status" role="status" hidden></p>
+	</main>
+	<footer>Northwind Supply / Partner portal</footer>
+	<script>
+		if (sessionStorage.getItem('nw-authenticated') !== 'true') {
+			window.location.replace('login.html');
+		}
+
+		const defaults = { firstName: 'Alex', lastName: 'Morgan', phone: '+1 555 010 4477', language: 'en' };
+		const form = document.querySelector('#profile-form');
+		const error = document.querySelector('#profile-error');
+		const status = document.querySelector('#profile-status');
+		const fields = {
+			firstName: document.querySelector('#first-name'),
+			lastName: document.querySelector('#last-name'),
+			phone: document.querySelector('#phone'),
+			language: document.querySelector('#language'),
+		};
+
+		function loadProfile() {
+			return { ...defaults, ...JSON.parse(sessionStorage.getItem('nw-profile') || '{}') };
+		}
+
+		function render() {
+			const profile = loadProfile();
+			for (const [key, input] of Object.entries(fields)) {
+				input.value = profile[key];
+			}
+			document.querySelector('#summary-name').textContent = `${profile.firstName} ${profile.lastName}`;
+			document.querySelector('#summary-phone').textContent = profile.phone || 'Not provided';
+		}
+
+		form.addEventListener('input', () => {
+			error.hidden = true;
+			status.hidden = true;
+		});
+
+		form.addEventListener('submit', (event) => {
+			event.preventDefault();
+			const profile = Object.fromEntries(Object.entries(fields).map(([key, input]) => [key, input.value.trim()]));
+
+			if (!profile.firstName || !profile.lastName) {
+				error.textContent = 'First name and last name are required.';
+				error.hidden = false;
+				(!profile.firstName ? fields.firstName : fields.lastName).focus();
+				return;
+			}
+			if (profile.phone && !/^\+?[\d\s()-]{7,20}$/.test(profile.phone)) {
+				error.textContent = 'Enter a valid phone number.';
+				error.hidden = false;
+				fields.phone.focus();
+				return;
+			}
+
+			sessionStorage.setItem('nw-profile', JSON.stringify(profile));
+			render();
+			status.textContent = 'Your details have been saved.';
+			status.hidden = false;
+		});
+
+		document.querySelector('#reset-button').addEventListener('click', () => {
+			render();
+			error.hidden = true;
+			status.hidden = true;
+		});
+
+		document.querySelector('#logout-button').addEventListener('click', () => {
+			sessionStorage.removeItem('nw-authenticated');
+			window.location.href = 'login.html';
+		});
+
+		render();
+	</script>
+</body>
+</html>
