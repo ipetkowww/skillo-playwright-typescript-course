@@ -1,12 +1,15 @@
 import {expect, Locator, Page} from "@playwright/test";
+import {HeaderComponent} from "./components/HeaderComponent";
+import {pathToFileURL} from "node:url";
+import {resolve} from "node:path";
 
 export class OrdersPage {
 
     constructor(private readonly page: Page) {
     }
 
-    public get signOutButton(): Locator {
-        return this.page.locator("#logout-button");
+    public get headerComponent(): HeaderComponent {
+        return new HeaderComponent(this.page);
     }
 
     public get heading(): Locator {
@@ -29,8 +32,21 @@ export class OrdersPage {
         return this.page.locator("#status-filter");
     }
 
-    public get totalTableHeader(): Locator {
+    public get totalButton(): Locator {
         return this.page.locator("#sort-total");
+    }
+
+    public get totalHeader(): Locator {
+        return this.page.locator("th.total");
+    }
+
+    public get totalCells(): Locator {
+        return this.page.locator('td.total');
+    }
+
+    async open() {
+        const ordersPageUrl: string = pathToFileURL(resolve(__dirname, '../pages/index.html')).href;
+        await this.page.goto(ordersPageUrl);
     }
 
     public async filterByCustomerNameAndStatus(customerName: string, status: StatusEnum = StatusEnum.AllStatuses): Promise<void> {
@@ -48,13 +64,23 @@ export class OrdersPage {
                 .locator("td:nth-child(4)")
                 .innerText();
 
-            let expectedStatus = expectedStatuses[i];
+            let expectedStatus: StatusEnum = expectedStatuses[i]!;
             expect(actualStatus).toEqual(expectedStatus);
         }
     }
 
-    public async sortDescendingOrdersTotal(): Promise<void> {
-        await this.totalTableHeader.click();
+    public async verifyTotalOrdersSortedDescending(): Promise<void> {
+        const attribute = await this.totalHeader.getAttribute("aria-sort");
+        expect(attribute).toEqual("descending");
+
+
+        const actualValues: number[] = (await this.totalCells.allTextContents())
+            .map(x => Number(x.replace(/[$,]/g, '').trim())
+            );
+        expect(actualValues.length).toBeGreaterThan(0);
+
+        const expectedValues: number[] = [...actualValues].sort((a: number, b: number) => b - a);
+        expect(actualValues).toEqual(expectedValues);
     }
 }
 
